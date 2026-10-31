@@ -2,11 +2,11 @@
   "name": "credly-server",
   "version": "1.0.0",
   "description": "Credly backend server",
-  "main": "dist/index.js",
+  "main": "src/index.ts",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "prisma generate && tsc",
-    "start": "node dist/index.js",
+    "build": "prisma generate",
+    "start": "tsx src/index.ts",
     "test": "vitest run",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
@@ -23,6 +23,7 @@
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
+    "tsx": "^4.19.3",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -32,7 +33,6 @@
     "@types/jsonwebtoken": "^9.0.8",
     "@types/node": "^22.13.4",
     "prisma": "^5.22.0",
-    "tsx": "^4.19.3",
     "typescript": "5.7.3",
     "vitest": "^5.0.5"
   }
