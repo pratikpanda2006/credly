@@ -1,0 +1,29 @@
+{
+  "name": "credly",
+  "version": "1.0.0",
+  "description": "Credly: Group Contribution Tracker - Fair credit for every contributor",
+  "main": "server/dist/index.js",
+  "scripts": {
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build": "npm run build --prefix server && npm run build --prefix client",
+    "test": "npm run test --prefix server",
+    "prisma:generate": "npm run prisma:generate --prefix server",
+    "prisma:push": "npm run prisma:push --prefix server",
+    "prisma:seed": "npm run prisma:seed --prefix server"
+  },
+  "keywords": [
+    "pwa",
+    "react",
+    "express",
+    "prisma",
+    "fair-share",
+    "contribution-tracker"
+  ],
+  "author": "Pratik Panda",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

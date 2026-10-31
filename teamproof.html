@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TeamProof – prototype</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f5f1;--card:#fff;--tx:#1c1b18;--mu:#6b6a64;--bd:#e3e1d9;--ac:#2f6f5e;--act:#fff;--ok:#2f6f5e;--no:#b3402f;--sf:#eef3f1}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151614;--card:#1f211e;--tx:#ecebe5;--mu:#9a998f;--bd:#32352f;--ac:#5fb59f;--act:#0f1a16;--ok:#5fb59f;--no:#e0806f;--sf:#232824}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+#app{max-width:480px;margin:0 auto;padding:16px 16px 90px}
+h1{font-size:26px;margin:8px 0}h2{font-size:19px;margin:18px 0 8px}p{margin:6px 0}.mu{color:var(--mu);font-size:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin:10px 0}
+input,textarea{width:100%;padding:12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit;margin:6px 0}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:10px 14px}
+button.p{background:var(--ac);color:var(--act);border-color:var(--ac);font-weight:600}button.w{width:100%}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.sp{justify-content:space-between}
+.yes{color:var(--ok);border-color:var(--ok)}.no{color:var(--no);border-color:var(--no)}
+.av{width:34px;height:34px;border-radius:50%;background:var(--sf);color:var(--ac);display:grid;place-items:center;font-weight:700;flex:none}
+.tag{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--sf);color:var(--ac)}
+.bar{height:10px;background:var(--sf);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav div{display:flex;max-width:480px;width:100%}nav button{flex:1;border:0;border-radius:0;background:none;padding:14px 4px;color:var(--mu)}nav button.on{color:var(--ac);font-weight:700}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:grid;place-items:center;padding:20px;z-index:9}.ov .card{max-width:380px;margin:0}
+.code{font:700 28px/1 ui-monospace,monospace;letter-spacing:4px;text-align:center;padding:14px;background:var(--sf);border-radius:12px;color:var(--ac)}
+.hint{border-left:3px solid var(--ac);padding-left:10px}
+</style></head><body><div id="app"></div><div id="ov"></div>
+<script>
+var ME="You",PEERS=["Riya","Kabir","Meera"],ALL=[ME].concat(PEERS);
+var S={screen:"login",tab:"feed",code:"",tour:0,nid:10,asking:null,
+posts:[
+{id:1,a:"Riya",t:"Wrote the intro and problem statement (2 pages)",y:["You","Kabir","Meera"],n:[]},
+{id:2,a:"Kabir",t:"Read the 3 reference papers",y:["Riya"],n:[{by:"Meera",r:"No notes shared, so I could not use it"}]},
+{id:3,a:"Meera",t:"Made the slide template",y:["You","Riya"],n:[]},
+{id:4,a:"Riya",t:"Booked the meeting room for Friday",y:[],n:[]}]};
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function go(s){S.screen=s;render()}
+function mkCode(){var c="",k="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";for(var i=0;i<6;i++)c+=k[Math.floor(Math.random()*k.length)];return c}
+function stats(m){var ps=S.posts.filter(function(p){return p.a===m}),y=0,n=0;
+ps.forEach(function(p){y+=p.y.length;n+=p.n.length});
+var max=ps.length*(ALL.length-1),pend=max-y-n;
+return{m:m,posts:ps.length,y:y,n:n,pend:pend,eff:max&&(y+n)?Math.round(y/(y+n)*100):null,reach:max?Math.round((y+n)/max*100):0,score:ps.length?Math.round(y/max*100):0}}
+function login(){var e=$("em").value.trim(),p=$("pw").value;if(!/^\S+@\S+\.\S+$/.test(e)){$("err").textContent="Please enter a valid email.";return}
+if(p.length<6){$("err").textContent="Password needs at least 6 characters.";return}go("team")}
+function create(){S.code=mkCode();S.screen="created";render()}
+function join(){var c=$("jc").value.trim().toUpperCase();if(c.length!==6){$("err").textContent="Team codes have 6 characters.";return}S.code=c;enter()}
+function enter(){S.screen="main";S.tour=1;render()}
+function addPost(){var t=$("pt").value.trim();if(t.length<4){$("pt").placeholder="Describe what you did in a few words…";return}
+S.posts.unshift({id:S.nid++,a:ME,t:t,y:[],n:[]});render()}
+function voteYes(id){var p=S.posts.find(function(x){return x.id===id});if(!p.y.includes(ME))p.y.push(ME);render()}
+function ask(id){S.asking=id;render()}
+function voteNo(id){var r=$("rs").value.trim();if(r.length<5){$("rs").placeholder="Please say why (at least a few words)";return}
+S.posts.find(function(x){return x.id===id}).n.push({by:ME,r:r});S.asking=null;render()}
+function tab(t){S.tab=t;render()}
+var TOUR=[["Welcome! 👋","This app is a shared diary of who did what. Post even the smallest thing you did, and your teammates confirm it."],
+["Step 1: Post what you did","Type a small, specific task, like “Fixed chart labels”. Every post starts with 1 point."],
+["Step 2: Confirm teammates’ work","On their posts you will see Yes / No. Yes = it helped the group. No = you must say why, so feedback stays fair."],
+["Step 3: Check Insights","Your efficiency is the share of reviewed posts that teammates found helpful, so quality counts, not spam."]];
+function tour(){if(!S.tour)return"";var s=TOUR[S.tour-1];
+return'<div class="ov"><div class="card"><h2 style="margin-top:0">'+s[0]+'</h2><p>'+s[1]+'</p><p class="mu">'+S.tour+' of '+TOUR.length+'</p><div class="row"><button onclick="S.tour=0;render()">Skip</button><button class="p" onclick="S.tour=S.tour<'+TOUR.length+'?S.tour+1:0;render()">'+(S.tour<TOUR.length?"Next":"Got it")+'</button></div></div></div>'}
+function postCard(p){var mine=p.a===ME,done=p.y.includes(ME)||p.n.some(function(x){return x.by===ME}),h='<div class="card"><div class="row sp" style="align-items:flex-start"><div class="av" style="flex:none">'+p.a[0]+'</div><div style="flex:1 1 auto"><b>'+esc(p.a)+'</b><div>'+esc(p.t)+'</div></div></div>';
+h+='<div class="row sp" style="margin-top:10px"><span class="tag">⭐ 1 base</span><span class="tag">👍 '+p.y.length+'</span><span class="tag">👎 '+p.n.length+'</span></div>';
+if(!mine&&!done){if(S.asking===p.id)h+='<div class="hint" style="margin-top:10px"><p class="mu">Why was it not helpful for the group?</p><textarea id="rs" rows="2"></textarea><div class="row"><button onclick="S.asking=null;render()">Cancel</button><button class="no" onclick="voteNo('+p.id+')">Submit</button></div></div>';
+else h+='<p class="mu" style="margin-top:10px">Was this helpful to you?</p><div class="row"><button class="yes" onclick="voteYes('+p.id+')">👍 Yes</button><button class="no" onclick="ask('+p.id+')">👎 No</button></div>'}
+else if(!mine)h+='<p class="mu" style="margin-top:8px">✓ You reviewed this</p>';
+else h+='<p class="mu" style="margin-top:8px">Waiting for '+(ALL.length-1-p.y.length-p.n.length)+' teammate(s) to review</p>';
+p.n.forEach(function(x){h+='<p class="mu hint">'+esc(x.by)+': '+esc(x.r)+'</p>'});return h+'</div>'}
+function feed(){var todo=S.posts.filter(function(p){return p.a!==ME&&!p.y.includes(ME)&&!p.n.some(function(x){return x.by===ME})}).length;
+var h='<div class="card"><b>What did you do for the group?</b><input id="pt" placeholder="e.g. Fixed the chart labels"><button class="p w" onclick="addPost()">Post my work</button></div>';
+if(todo)h+='<p class="hint">👀 '+todo+' post(s) from teammates are waiting for your review.</p>';
+return h+S.posts.map(postCard).join("")}
+function insights(){var st=ALL.map(stats),h='<h2>Team efficiency</h2><p class="mu">Efficiency = helpful votes ÷ reviewed votes. Reach = how much of your work has been reviewed.</p>';
+st.slice().sort(function(a,b){return b.score-a.score}).forEach(function(s){
+h+='<div class="card"><div class="row sp"><b>'+(s.m===ME?"You":esc(s.m))+'</b><span>'+(s.eff===null?"No reviews yet":s.eff+"% efficient")+'</span></div><div class="bar" style="margin:8px 0"><i style="width:'+s.score+'%"></i></div><p class="mu">'+s.posts+' posts · 👍 '+s.y+' · 👎 '+s.n+' · '+s.pend+' pending · reach '+s.reach+'%</p></div>'});
+var tot=S.posts.length||1;h+='<h2>Share of team posts</h2><div class="card">';
+st.forEach(function(s){var pc=Math.round(s.posts/tot*100);h+='<div class="row sp"><span style="flex:0 0 70px">'+esc(s.m)+'</span><div class="bar" style="flex:1"><i style="width:'+pc+'%"></i></div><span style="flex:0 0 40px;text-align:right">'+pc+'%</span></div>'});
+var low=st.slice().sort(function(a,b){return a.posts-b.posts})[0];
+h+='</div><div class="card hint"><b>Insight</b><p>'+(low.posts===0?esc(low.m)+" has not posted anything yet.":esc(low.m)+" has the fewest posts ("+low.posts+"). A gentle nudge may help.")+'</p></div>';return h}
+function team(){var h='<h2>Team '+esc(S.code)+'</h2><div class="card"><div class="code">'+esc(S.code)+'</div><p class="mu" style="text-align:center">Share this code so others can join.</p></div><h2>Members</h2>';
+ALL.forEach(function(m){h+='<div class="card row"><div class="av" style="flex:none">'+m[0]+'</div><b style="flex:1 1 auto">'+m+'</b></div>'});
+return h+'<button class="w" onclick="S.tour=1;render()">Replay the guided tour</button>'}
+function render(){var h="",a=$("app");$("ov").innerHTML="";
+if(S.screen==="login")h='<h1>TeamProof</h1><p class="mu">Honest group work, made visible.</p><div class="card"><b>Log in or sign up</b><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Password (6+ characters)"><p id="err" style="color:var(--no);margin:0"></p><button class="p w" onclick="login()">Continue</button></div>';
+else if(S.screen==="team")h='<h1>Your team</h1><p class="mu">Create a new team or join one with a code.</p><div class="card"><b>Create a team</b><p class="mu">You will get a code to share with your group.</p><button class="p w" onclick="create()">Create team</button></div><div class="card"><b>Join a team</b><input id="jc" placeholder="6-character code" maxlength="6" style="text-transform:uppercase"><p id="err" style="color:var(--no);margin:0"></p><button class="w" onclick="join()">Join team</button></div>';
+else if(S.screen==="created")h='<h1>Team created 🎉</h1><div class="card"><div class="code">'+esc(S.code)+'</div><p class="mu" style="text-align:center">Send this code to your teammates. They enter it under “Join a team”.</p></div><button class="p w" onclick="enter()">Go to my team</button>';
+else{h=(S.tab==="feed"?feed():S.tab==="insights"?insights():team())+'<nav><div>'+[["feed","📝 Feed"],["insights","📊 Insights"],["team","👥 Team"]].map(function(t){return'<button class="'+(S.tab===t[0]?"on":"")+'" onclick="tab(\''+t[0]+'\')">'+t[1]+'</button>'}).join("")+'</div></nav>';$("ov").innerHTML=tour()}
+a.innerHTML=h}
+render();
+</script></body></html>

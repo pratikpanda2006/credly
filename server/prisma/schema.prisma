@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(uuid())
+  email        String         @unique
+  passwordHash String
+  displayName  String
+  createdAt    DateTime       @default(now())
+  memberships  Membership[]
+  posts        Post[]
+  votes        Vote[]
+  notifications Notification[]
+}
+
+model Team {
+  id            String       @id @default(uuid())
+  name          String
+  joinCode      String       @unique
+  weightByPosts Boolean      @default(false)
+  createdById   String
+  createdAt     DateTime     @default(now())
+  memberships   Membership[]
+  posts         Post[]
+}
+
+model Membership {
+  id       String   @id @default(uuid())
+  userId   String
+  teamId   String
+  role     String   @default("MEMBER") // ADMIN or MEMBER
+  joinedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+  @@index([userId])
+  @@index([teamId])
+}
+
+model Post {
+  id        String    @id @default(uuid())
+  teamId    String
+  authorId  String
+  text      String
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  votes  Vote[]
+  proofs Proof[]
+
+  @@index([teamId])
+  @@index([authorId])
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  postId    String
+  voterId   String
+  type      String   // GROUP, SELF, or NO
+  reason    String?
+  createdAt DateTime @default(now())
+
+  post  Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  voter User @relation(fields: [voterId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, voterId])
+  @@index([postId])
+  @@index([voterId])
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  type      String
+  payload   String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Proof {
+  id        String   @id @default(uuid())
+  postId    String
+  kind      String   // LINK, IMAGE, or FILE
+  url       String
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
